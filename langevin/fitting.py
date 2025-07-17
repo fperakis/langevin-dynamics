@@ -22,6 +22,13 @@ def two_step_stretched(t, tau1, tau2, beta, A=0.5):
     """
     return (1 - A) * np.exp(-(t / tau1)**2) + A * np.exp(-(t / tau2) ** beta)
 
+def VFT_gamma(T, T_0=0.1, A=1, B = 0.1):
+    """
+    VFT-like divergence of friction coefficient:
+        gamma_s(T) = exp[ (delta * T_0 / (T - T_0))^exponent ]
+    Diverges as T → T_0 from above.
+    """
+    return A*np.exp((B / (T - T_0)))
 
 def log_weighted_residuals(params, model_func, t, y, weights=None):
     """
