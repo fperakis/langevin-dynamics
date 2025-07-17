@@ -82,9 +82,8 @@ def plot_trajectory_colored_by_diffusion(
     mid_points,
     vmin=None,
     vmax=None,
-    cmap='viridis'
-):
-     """
+    cmap='viridis'):
+    """
     Plots trajectory with color coding based on local diffusion.
 
     Parameters:
