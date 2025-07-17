@@ -33,6 +33,39 @@ def compute_msd(positions, dt=0.01, log_spacing=True, n_lags=100):
     times = lag_steps * dt
     return times, msd
 
+from scipy.optimize import curve_fit
+import numpy as np
+
+def estimate_diffusion_from_msd(time_lags, msd, fit_start_ratio=0.5, fit_end_ratio=0.7):
+    """
+    Estimate the effective diffusion coefficient from the MSD curve by linear fitting.
+
+    Parameters:
+        time_lags        : ndarray
+            Array of time lags (e.g. from log spacing).
+        msd              : ndarray
+            Mean squared displacement values corresponding to time_lags.
+        fit_start_ratio  : float
+            Fraction of the data range to start the linear fit (default 0.5).
+        fit_end_ratio    : float
+            Fraction of the data range to end the linear fit (default 0.7).
+
+    Returns:
+        D_eff  : float
+            Estimated diffusion coefficient (in 2D: MSD = 4Dt).
+        popt   : tuple
+            Optimal fit parameters.
+        pcov   : ndarray
+            Covariance of the fit parameters.
+    """
+    def diffusion_linear_fit(t, D):
+        return 4 * D * t  # For 2D diffusion
+
+    start_idx = int(len(time_lags) * fit_start_ratio)
+    end_idx = int(len(time_lags) * fit_end_ratio)
+    popt, pcov = curve_fit(diffusion_linear_fit, time_lags[start_idx:end_idx], msd[start_idx:end_idx])
+    D_eff = popt[0]
+    return D_eff, popt, pcov
 
 def compute_ngp(positions, dt=0.01, n_lags=100):
     """
