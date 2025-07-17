@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import curve_fit
 
-def compute_msd(x, y, dt=1e-2, n_lags=100, min_lag=1):
+def compute_msd(positions, dt=1e-2, n_lags=100, min_lag=1):
     """
     Computes ensemble-averaged MSD using log-spaced lags.
 
