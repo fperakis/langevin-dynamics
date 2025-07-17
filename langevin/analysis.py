@@ -85,7 +85,7 @@ def compute_ngp(positions, dt=0.01, n_lags=100):
     return times, alpha2
 
 
-def compute_self_intermediate_scattering_function_loglags(
+def compute_isf(
     positions, q=1.0, dt=0.01, stride=1, n_lags=100, lag_min=1
 ):
     """
