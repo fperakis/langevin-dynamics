@@ -2,26 +2,31 @@
 Langevin Dynamics Toolkit
 
 Provides simulation and analysis tools for Langevin dynamics with
-state-dependent friction. Supports symmetric and temperature-dependent switching.
+state-dependent friction. 
 
 Modules:
 - simulation: Langevin integrators (explicit, semi-implicit)
 - analysis: MSD, NGP, ISF, overlap function, chi4, etc.
 - fitting: stretched exponential and multi-component model fitting
-- plotting: visualization tools
+- visualization: tools for plotting trajectories
 """
 
 from .simulation import run_langevin_simulation
 from .analysis import (
     compute_msd,
-    compute_ngp_ensemble_time_avg,
-    compute_intermediate_scattering_function,
+    estimate_diffusion_from_msd,
+    compute_ngp,
+    compute_isf,
     compute_overlap_function,
-    compute_chi4
+    compute_chi4_overlap
 )
 from .fitting import (
-    fit_stretched_exponential,
-    fit_two_step_relaxation
+    stretched_exponential,
+    double_exponential,
+    two_step_stretched, 
+    VFT_gamma, 
+    log_weighted_residuals, 
+    fit_model
 )
 from .visualization import (
     plot_trajectory_colored_by_diffusion,
@@ -30,16 +35,20 @@ from .visualization import (
 
 __all__ = [
     "run_langevin_simulation",
-    "run_langevin_simulation_symmetric",
     "compute_msd",
-    "compute_ngp_ensemble_time_avg",
-    "compute_intermediate_scattering_function",
+    "estimate_diffusion_from_msd",
+    "compute_ngp",
+    "compute_isf",
     "compute_overlap_function",
-    "compute_chi4",
-    "fit_stretched_exponential",
-    "fit_two_step_relaxation",
+    "compute_chi4_overlap", 
+    "stretched_exponential",
+    "double_exponential",
+    "two_step_stretched", 
+    "VFT_gamma", 
+    "log_weighted_residuals", 
+    "fit_model",
     "plot_trajectory_colored_by_diffusion",
-    "plot_isf_fit"
+    "compute_local_diffusion"
 ]
 
 __version__ = "0.1.0"
