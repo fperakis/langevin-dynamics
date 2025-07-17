@@ -1,4 +1,4 @@
-# Langevin Dynamics Toolkit 
+# Langevin Dynamics 
 
 A modular and extensible Python package for simulating and analyzing overdamped and underdamped Langevin dynamics with stochastic switching between different frictional states. Includes tools for computing mean-squared displacement (MSD), non-Gaussian parameter (NGP), intermediate scattering functions (ISF), overlap functions, and four-point dynamical susceptibility (χ₄).
 
