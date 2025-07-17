@@ -1,0 +1,140 @@
+import numpy as np
+
+import numpy as np
+
+def compute_msd(positions, dt=0.01, log_spacing=True, n_lags=100):
+    """
+    Computes ensemble-averaged MSD using log- or linear-spaced lags.
+
+    Parameters:
+        positions : ndarray (n_particles, n_steps, 2)
+        dt        : float, timestep
+        log_spacing : bool, use logarithmic lag spacing
+        n_lags    : number of lag points (log or linear)
+
+    Returns:
+        times : array of lag times
+        msd   : array of MSD values
+    """
+    n_particles, n_steps, _ = positions.shape
+    max_lag = n_steps // 2
+
+    if log_spacing:
+        lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+    else:
+        lag_steps = np.arange(1, max_lag)
+
+    msd = np.zeros(len(lag_steps))
+    for i, lag in enumerate(lag_steps):
+        disp = positions[:, lag:, :] - positions[:, :-lag, :]
+        dr2 = np.sum(disp**2, axis=-1)
+        msd[i] = np.mean(dr2)
+
+    times = lag_steps * dt
+    return times, msd
+
+
+def compute_ngp(positions, dt=0.01, n_lags=100):
+    """
+    Computes the Non-Gaussian parameter α₂(t) using ensemble + time average.
+
+    Returns:
+        times  : ndarray of times
+        alpha2 : ndarray of α₂(t)
+    """
+    n_particles, n_steps, dim = positions.shape
+    max_lag = n_steps // 2
+    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+
+    alpha2 = np.zeros(len(lag_steps))
+    for i, lag in enumerate(lag_steps):
+        disp = positions[:, lag:, :] - positions[:, :-lag, :]
+        dr2 = np.sum(disp**2, axis=-1)
+        msd = np.mean(dr2)
+        fourth_moment = np.mean(dr2**2)
+        alpha2[i] = fourth_moment / (2 * msd**2) - 1 if msd > 0 else 0.0
+
+    times = lag_steps * dt
+    return times, alpha2
+
+
+def compute_isf(positions, q=1.0, dt=0.01, n_lags=100, stride=1):
+    """
+    Computes direction-averaged self-intermediate scattering function (ISF).
+
+    Returns:
+        times : lag times
+        isf   : ISF as a function of time
+    """
+    n_particles, n_steps, dim = positions.shape
+    q_vectors = [np.array([q, 0.0]), np.array([0.0, q])]
+    max_lag = n_steps // 2
+    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+
+    isf_q = np.zeros(len(lag_steps))
+
+    for q_vec in q_vectors:
+        iq = np.zeros(len(lag_steps))
+        for i, lag in enumerate(lag_steps):
+            dot_prod = []
+            for start in range(0, n_steps - lag, stride):
+                disp = positions[:, start + lag, :] - positions[:, start, :]
+                phase = np.dot(disp, q_vec)
+                dot_prod.append(np.mean(np.cos(phase)))
+            iq[i] = np.mean(dot_prod)
+        isf_q += iq / len(q_vectors)
+
+    times = lag_steps * dt * stride
+    return times, isf_q
+
+
+def compute_overlap_function(positions, a=0.3, dt=0.01, n_lags=100):
+    """
+    Computes overlap function Q(t).
+
+    Returns:
+        times : lag times
+        Q     : overlap function Q(t)
+    """
+    n_particles, n_steps, _ = positions.shape
+    max_lag = n_steps // 2
+    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+
+    Q = np.zeros(len(lag_steps))
+    for i, lag in enumerate(lag_steps):
+        disp = positions[:, lag:, :] - positions[:, :-lag, :]
+        dr2 = np.sum(disp**2, axis=-1)
+        Q[i] = np.mean(dr2 < a**2)
+
+    times = lag_steps * dt
+    return times, Q
+
+
+def compute_chi4_overlap(positions, a=0.3, dt=0.01, n_lags=100):
+    """
+    Computes four-point dynamical susceptibility χ₄(t) based on the overlap function.
+
+    Parameters:
+        positions : ndarray (n_particles, n_steps, dim)
+        a         : threshold distance for overlap (float)
+        dt        : time step
+        n_lags    : number of log-spaced lag points
+
+    Returns:
+        times : ndarray of lag times
+        chi4  : dynamic susceptibility χ₄(t)
+    """
+    n_particles, n_steps, dim = positions.shape
+    max_lag = n_steps // 2
+    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+
+    chi4 = np.zeros(len(lag_steps))
+    for i, lag in enumerate(lag_steps):
+        disp = positions[:, lag:, :] - positions[:, :-lag, :]
+        dr2 = np.sum(disp**2, axis=-1)
+        q_i = (dr2 < a**2).astype(float)  # shape: (n_particles, n_steps - lag)
+        Q_t = np.mean(q_i, axis=0)        # average per frame
+        chi4[i] = n_particles * np.var(Q_t)
+
+    times = lag_steps * dt
+    return times, chi4
