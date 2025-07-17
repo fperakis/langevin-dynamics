@@ -15,12 +15,12 @@ def compute_msd(positions, dt=1e-2, n_lags=100, min_lag=1):
         times : array of lag times
         msd   : array of MSD values
     """
+    x,y = positions[:,:,0],positions[:,:,1]
     n_particles, n_steps = x.shape
     max_lag = n_steps // 2
     log_lags = np.unique(np.logspace(np.log10(min_lag), np.log10(max_lag), n_lags).astype(int))
 
     msd = np.zeros(len(log_lags))
-    x,y = positions[:,:,0],positions[:,:,1]
     
     for i, lag in enumerate(log_lags):
         disp_sq = (x[:, lag:] - x[:, :-lag])**2 + (y[:, lag:] - y[:, :-lag])**2
