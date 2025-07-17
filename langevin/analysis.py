@@ -85,35 +85,49 @@ def compute_ngp(positions, dt=0.01, n_lags=100):
     return times, alpha2
 
 
-def compute_isf(positions, q=1.0, dt=0.01, n_lags=100, stride=1):
+def compute_self_intermediate_scattering_function_loglags(
+    positions, q=1.0, dt=0.01, stride=1, n_lags=100, lag_min=1
+):
     """
-    Computes direction-averaged self-intermediate scattering function (ISF).
+    Computes the self-intermediate scattering function with log-spaced time lags.
+
+    Parameters:
+        positions : array of shape (n_particles, n_steps, 2)
+            Particle trajectories.
+        q         : float
+            Wavevector magnitude.
+        dt        : float
+            Time step.
+        stride    : int
+            Temporal downsampling for fast computation.
+        n_lags    : int
+            Number of log-spaced lags to compute.
+        lag_min   : int
+            Minimum lag (in steps).
 
     Returns:
-        times : lag times
-        isf   : ISF as a function of time
+        times     : array of time lags (in physical time units)
+        Fs_qt     : ISF evaluated at those time lags
     """
-    n_particles, n_steps, dim = positions.shape
-    q_vectors = [np.array([q, 0.0]), np.array([0.0, q])]
-    max_lag = n_steps // 2
-    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+    pos = positions[:, ::stride]  # downsample in time
+    n_particles, n_steps, _ = pos.shape
 
-    isf_q = np.zeros(len(lag_steps))
+    # Generate log-spaced lag steps (unique and sorted)
+    lag_steps = np.unique(np.logspace(
+        np.log10(lag_min), np.log10(n_steps // 2), n_lags
+    ).astype(int))
 
-    for q_vec in q_vectors:
-        iq = np.zeros(len(lag_steps))
-        for i, lag in enumerate(lag_steps):
-            dot_prod = []
-            for start in range(0, n_steps - lag, stride):
-                disp = positions[:, start + lag, :] - positions[:, start, :]
-                phase = np.dot(disp, q_vec)
-                dot_prod.append(np.mean(np.cos(phase)))
-            iq[i] = np.mean(dot_prod)
-        isf_q += iq / len(q_vectors)
+    Fs_qt = np.zeros_like(lag_steps, dtype=float)
 
-    times = lag_steps * dt * stride
-    return times, isf_q
+    for i, lag in enumerate(lag_steps):
+        if lag >= n_steps:
+            break
+        dr = pos[:, lag:, :] - pos[:, :-lag, :]
+        dq = np.sum(dr, axis=2) * q  # projection along q-direction (approx)
+        Fs_qt[i] = np.mean(np.cos(dq))
 
+    time_lags = lag_steps * dt * stride
+    return time_lags, Fs_qt
 
 def compute_overlap_function(positions, a=0.3, dt=0.01, n_lags=100):
     """
