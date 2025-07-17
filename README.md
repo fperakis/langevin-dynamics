@@ -54,15 +54,15 @@ plt.grid(True)
 plt.show()
 ```
 
-**Example Analyses**
+## Example Analyses
 
-	•	Non-Gaussian Parameter (NGP): Quantifies deviations from Gaussian displacement statistics.
-	•	Intermediate Scattering Function (ISF): Direction-averaged ISF for extracting τα and cage dynamics.
-	•	Overlap Function & χ₄ Susceptibility: Tools for identifying dynamical heterogeneity and cooperative motion.
+- Non-Gaussian Parameter (NGP): Quantifies deviations from Gaussian displacement statistics.
+- Intermediate Scattering Function (ISF): Direction-averaged ISF for extracting τα and cage dynamics.
+- Overlap Function & χ₄ Susceptibility: Tools for identifying dynamical heterogeneity and cooperative motion.
 
  --
 
- **Project structure**
+## Project structure
 ```
  langevin/
 ├── simulation.py      # Core Langevin integrators
@@ -74,13 +74,13 @@ plt.show()
 
 ⸻
 
-**License**
+## License
 
 MIT License
 
 ⸻
 
-**Acknowledgments**
+## Acknowledgments
 
 Developed by F. Perakis and collaborators.
 Inspired by research on stochastic dynamics, glassy systems, and molecular simulations.
