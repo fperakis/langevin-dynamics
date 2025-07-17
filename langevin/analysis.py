@@ -1,40 +1,33 @@
 import numpy as np
+from scipy.optimize import curve_fit
 
-import numpy as np
-
-def compute_msd(positions, dt=0.01, log_spacing=True, n_lags=100):
+def compute_msd(x, y, dt=1e-2, n_lags=100, min_lag=1):
     """
-    Computes ensemble-averaged MSD using log- or linear-spaced lags.
+    Computes ensemble-averaged MSD using log-spaced lags.
 
     Parameters:
         positions : ndarray (n_particles, n_steps, 2)
         dt        : float, timestep
-        log_spacing : bool, use logarithmic lag spacing
-        n_lags    : number of lag points (log or linear)
+        n_lags    : number of lag points
+        min_lag   : first lag point
 
     Returns:
         times : array of lag times
         msd   : array of MSD values
     """
-    n_particles, n_steps, _ = positions.shape
+    n_particles, n_steps = x.shape
     max_lag = n_steps // 2
+    log_lags = np.unique(np.logspace(np.log10(min_lag), np.log10(max_lag), n_lags).astype(int))
 
-    if log_spacing:
-        lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
-    else:
-        lag_steps = np.arange(1, max_lag)
+    msd = np.zeros(len(log_lags))
+    
+    for i, lag in enumerate(log_lags):
+        disp_sq = (x[:, lag:] - x[:, :-lag])**2 + (y[:, lag:] - y[:, :-lag])**2
+        msd[i] = np.mean(disp_sq)
 
-    msd = np.zeros(len(lag_steps))
-    for i, lag in enumerate(lag_steps):
-        disp = positions[:, lag:, :] - positions[:, :-lag, :]
-        dr2 = np.sum(disp**2, axis=-1)
-        msd[i] = np.mean(dr2)
-
-    times = lag_steps * dt
+    times = log_lags*dt  
     return times, msd
 
-from scipy.optimize import curve_fit
-import numpy as np
 
 def estimate_diffusion_from_msd(time_lags, msd, fit_start_ratio=0.5, fit_end_ratio=0.7):
     """
