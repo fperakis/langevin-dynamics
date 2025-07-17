@@ -14,6 +14,11 @@ A modular and extensible Python package for simulating and analyzing overdamped 
 - Modular code structure with examples and tests
 
 ---
+## Installation 
+```
+pip install git+https://github.com/fperakis/langevin-dynamics.git
+```
+---
 
 ## Getting started
 
