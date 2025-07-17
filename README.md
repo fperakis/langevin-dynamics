@@ -68,8 +68,7 @@ plt.show()
 ├── simulation.py      # Core Langevin integrators
 ├── analysis.py        # MSD, NGP, ISF, etc.
 ├── fitting.py         # Stretched exponential and multi-component fits
-├── plotting.py        # Visualization tools
-└── utils.py           # Helper utilities
+└── visualization.py   # Visualization tools
 ```
 
 ⸻
