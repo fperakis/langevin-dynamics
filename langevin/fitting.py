@@ -1,6 +1,9 @@
 import numpy as np
 from scipy.optimize import least_squares
 
+def linear(x, slope, offset):
+    return x * slope + offset
+    
 def stretched_exponential(t, tau, beta, A=1.0):
     """
     Stretched exponential model: A * exp(-(t / tau)^beta)
