@@ -1,7 +1,10 @@
 import numpy as np
 from scipy.optimize import least_squares
 
-def linear(x, slope, offset):
+def linear(x, slope):
+    return x * slope
+
+def linear_with_offset(x, slope, offset):
     return x * slope + offset
     
 def stretched_exponential(t, tau, beta, A=1.0):
