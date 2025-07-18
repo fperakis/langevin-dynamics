@@ -30,7 +30,7 @@ from langevin.simulation import run_langevin_simulation
 positions, velocities, gamma_record = run_langevin_simulation(
     T=1.0,           # temperature
     tau=1.0,         # residence time in each state
-    n_steps=10000,   # number of time steps
+    n_steps=100000,  # number of time steps
     n_particles=100, # number of independent particles (no crossterm)
     dt=0.01,         # time step
     gamma_l=1.0,     # friction coeff. of liquid-like state 
