@@ -15,7 +15,7 @@ from .simulation import run_langevin_simulation
 from .analysis import (
     compute_msd,
     estimate_diffusion_from_msd,
-    compute_local_diffusion
+    compute_local_diffusion,
     compute_ngp,
     compute_isf,
     compute_overlap_function,
