@@ -28,13 +28,13 @@ Run a basic Langevin simulation:
 from langevin.simulation import run_langevin_simulation
 
 positions, velocities, gamma_record = run_langevin_simulation(
-    T=1.0,
-    tau=10.0,
-    n_steps=100000,
-    n_particles=100,
-    dt=0.01,
-    gamma_l=1.0,
-    gamma_g=10.0
+    T=1.0,           # temperature
+    tau=1.0,         # residence time in each state
+    n_steps=10000,   # number of time steps
+    n_particles=100, # number of independent particles (no crossterm)
+    dt=0.01,         # time step
+    gamma_l=1.0,     # friction coeff. of liquid-like state 
+    gamma_g=100.0    # friction coeff. of glass-like state 
 )
 ```
 
@@ -49,8 +49,6 @@ time, msd = compute_msd(positions, dt=0.01)
 plt.loglog(time, msd)
 plt.xlabel("Time")
 plt.ylabel("MSD")
-plt.title("Mean Squared Displacement")
-plt.grid(True)
 plt.show()
 ```
 
