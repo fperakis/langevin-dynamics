@@ -7,11 +7,11 @@ A modular and extensible Python package for simulating and analyzing overdamped 
 ## Features
 
 - Semi-implicit and explicit Langevin integrators  
-- Two-state switching: symmetric or temperature-dependent  
+- Two-state switching between liquid-like and glass like friction coefficients 
 - Analysis tools: MSD, NGP, ISF, τₐ (alpha-relaxation), χ₄  
 - Visualization of dynamic heterogeneity and local diffusion  
 - Stretched exponential fitting for relaxation dynamics  
-- Modular code structure with examples and tests
+- Modular code structure with examples
 
 ---
 ## Installation 
@@ -79,7 +79,7 @@ MIT License
 
 ## Acknowledgments
 
-Developed by F. Perakis and collaborators.
+Developed by F. Perakis and collaborators at the Institute of Molecular Science (IMS), Japan, and Stockholm University, Sweden.
 Inspired by research on stochastic dynamics, glassy systems, and molecular simulations.
 
 Feel free to open an issue or pull request for feedback or contributions.
