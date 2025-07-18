@@ -15,6 +15,7 @@ from .simulation import run_langevin_simulation
 from .analysis import (
     compute_msd,
     estimate_diffusion_from_msd,
+    compute_local_diffusion
     compute_ngp,
     compute_isf,
     compute_overlap_function,
@@ -29,14 +30,14 @@ from .fitting import (
     fit_model
 )
 from .visualization import (
-    plot_trajectory_colored_by_diffusion,
-    compute_local_diffusion
+    plot_trajectory_colored_by_diffusion
 )
 
 __all__ = [
     "run_langevin_simulation",
     "compute_msd",
     "estimate_diffusion_from_msd",
+    "compute_local_diffusion",
     "compute_ngp",
     "compute_isf",
     "compute_overlap_function",
@@ -47,8 +48,7 @@ __all__ = [
     "VFT_gamma", 
     "log_weighted_residuals", 
     "fit_model",
-    "plot_trajectory_colored_by_diffusion",
-    "compute_local_diffusion"
+    "plot_trajectory_colored_by_diffusion"
 ]
 
 __version__ = "0.1.0"
