@@ -61,6 +61,37 @@ def estimate_diffusion_from_msd(time_lags, msd, fit_start_ratio=0.5, fit_end_rat
     D_eff = popt[0]
     return D_eff, popt, pcov
 
+
+def compute_local_diffusion(pos, dt, window_size):
+    """
+    Computes local diffusion coefficient from trajectory.
+
+    Parameters:
+        pos : array of shape (n_steps, 2)
+            2D position trajectory.
+        dt : float
+            Time step.
+        window_size : int
+            Size of the time window to compute local diffusion.
+
+    Returns:
+        D_local : array of shape (n_steps - window_size,)
+            Estimated local diffusion coefficients.
+        mid_points : array of shape (n_steps - window_size, 2)
+            Corresponding midpoints of the trajectory segments.
+    """
+    n_steps = len(pos)
+    D_local = []
+    mid_points = []
+    for i in range(n_steps - window_size):
+        delta = pos[i + window_size] - pos[i]
+        msd = np.sum(delta**2)
+        D = msd / (4 * (window_size * dt))  # 2D MSD formula
+        D_local.append(D)
+        mid = (pos[i + window_size] + pos[i]) / 2
+        mid_points.append(mid)
+    return np.array(D_local), np.array(mid_points)
+
 def compute_ngp(positions, dt=0.01, n_lags=100):
     """
     Computes the Non-Gaussian parameter α₂(t) using ensemble + time average.
