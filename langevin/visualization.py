@@ -10,7 +10,8 @@ def plot_trajectory_colored_by_diffusion(
     mid_points,
     vmin=None,
     vmax=None,
-    cmap='viridis'):
+    cmap='viridis',
+    savefile=False):
     """
     Plots trajectory with color coding based on local diffusion.
 
@@ -66,4 +67,6 @@ def plot_trajectory_colored_by_diffusion(
     ax.set_xlabel("x", fontsize=12)
     ax.set_ylabel("y", fontsize=12)
     plt.tight_layout(pad=0.2)
+    if savefile==True:
+        plt.savefile('trajectory.pdf')
     plt.show()
