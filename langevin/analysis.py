@@ -160,53 +160,77 @@ def compute_isf(
     time_lags = lag_steps * dt * stride
     return time_lags, Fs_qt
 
-def compute_overlap_function(positions, a=0.3, dt=0.01, n_lags=100):
-    """
-    Computes overlap function Q(t).
 
-    Returns:
-        times : lag times
-        Q     : overlap function Q(t)
+def compute_overlap_function(positions, a=0.3, dt=0.01, min_lag=1, max_lag=None, stride=1, num_lags=100):
+    """
+    Fast version of the self-overlap function Q(t) with vectorized implementation.
     """
     n_particles, n_steps, _ = positions.shape
-    max_lag = n_steps // 2
-    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+    if max_lag is None:
+        max_lag = n_steps // 2
 
-    Q = np.zeros(len(lag_steps))
-    for i, lag in enumerate(lag_steps):
-        disp = positions[:, lag:, :] - positions[:, :-lag, :]
-        dr2 = np.sum(disp**2, axis=-1)
-        Q[i] = np.mean(dr2 < a**2)
-
+    lag_steps = np.unique(np.logspace(np.log10(min_lag), np.log10(max_lag), num=num_lags, dtype=int))
     times = lag_steps * dt
-    return times, Q
+    Q_t = np.zeros(len(lag_steps))
 
+    for i, lag in enumerate(lag_steps):
+        t0_max = n_steps - lag
+        if t0_max <= 0:
+            continue
+        # displacement: shape (n_particles, t0_max)
+        dr = positions[:, lag:] - positions[:, :-lag]  # shape: (n_particles, t0_max, 2)
+        dr2 = np.sum(dr**2, axis=-1)
+        overlap = dr2 < a**2
+        Q_t[i] = np.mean(overlap)
 
-def compute_chi4_overlap(positions, a=0.3, dt=0.01, n_lags=100):
+    return times, Q_t
+    
+
+def compute_chi4_overlap(
+    positions,
+    a=0.3,
+    dt=0.01,
+    n_lags=100,
+    min_lag=1
+):
     """
-    Computes four-point dynamical susceptibility χ₄(t) based on the overlap function.
+    Computes the dynamical susceptibility χ₄(t) using log-spaced time lags.
 
     Parameters:
         positions : ndarray (n_particles, n_steps, dim)
-        a         : threshold distance for overlap (float)
-        dt        : time step
-        n_lags    : number of log-spaced lag points
+            Particle trajectories.
+        a         : float
+            Overlap threshold distance.
+        dt        : float
+            Time step size.
+        n_lags    : int
+            Number of log-spaced lag steps.
+        min_lag   : int
+            Minimum lag (in steps).
 
     Returns:
-        times : ndarray of lag times
-        chi4  : dynamic susceptibility χ₄(t)
+        time_lags : ndarray (n_lags,)
+            Log-spaced lag times in physical units.
+        chi4      : ndarray (n_lags,)
+            Dynamical susceptibility χ₄(t).
     """
-    n_particles, n_steps, dim = positions.shape
+    n_particles, n_steps, _ = positions.shape
     max_lag = n_steps // 2
-    lag_steps = np.unique(np.logspace(0, np.log10(max_lag), n_lags).astype(int))
+    lag_steps = np.unique(np.logspace(
+        np.log10(min_lag), np.log10(max_lag), n_lags).astype(int))
 
     chi4 = np.zeros(len(lag_steps))
-    for i, lag in enumerate(lag_steps):
-        disp = positions[:, lag:, :] - positions[:, :-lag, :]
-        dr2 = np.sum(disp**2, axis=-1)
-        q_i = (dr2 < a**2).astype(float)  # shape: (n_particles, n_steps - lag)
-        Q_t = np.mean(q_i, axis=0)        # average per frame
-        chi4[i] = n_particles * np.var(Q_t)
 
-    times = lag_steps * dt
-    return times, chi4
+    for i, lag in enumerate(lag_steps):
+        displacements = positions[:, lag:] - positions[:, :-lag]
+        dr2 = np.sum(displacements**2, axis=-1)  # shape: (n_particles, n_steps - lag)
+        overlap = (dr2 < a**2).astype(float)     # binary overlap matrix
+
+        # Average over time origins for each particle
+        q_i_t = np.mean(overlap, axis=1)         # shape: (n_particles,)
+
+        # χ₄(t): variance of overlap over particles
+        chi4[i] = n_particles * np.var(q_i_t)
+
+    time_lags = lag_steps * dt
+    return time_lags, chi4
