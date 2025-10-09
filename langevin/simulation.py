@@ -22,7 +22,7 @@ def run_langevin_simulation(
         tau       : Mean switching time
         n_steps   : Number of time steps
         n_particles : Number of particles
-        dt        : Time step size
+        dt        : Integration time step (≪ τ and m/γ)
         gamma_l   : Friction in 'fast' (liquid-like) state
         gamma_g   : Friction in 'slow' (glassy-like) state
         m         : Particle mass
