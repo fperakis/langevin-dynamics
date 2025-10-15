@@ -18,6 +18,10 @@ A modular and extensible Python package for simulating and analyzing overdamped 
 ```
 pip install git+https://github.com/fperakis/langevin-dynamics.git
 ```
+and to uninstall:
+```
+pip uninstall langevin
+```
 ---
 
 ## Getting started
