@@ -14,7 +14,7 @@ setup(
     description="A package for simulating and analyzing Langevin dynamics with switching friction.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/your_project",
+    url="https://github.com/fperakis/langevin-dynamics",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
