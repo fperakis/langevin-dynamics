@@ -234,3 +234,85 @@ def compute_chi4_overlap(
 
     time_lags = lag_steps * dt
     return time_lags, chi4
+
+    def vacf_from_velocities(vel, dt, max_lag=None):
+    """
+    Compute velocity autocorrelation function <v_x(t0+τ) v_x(t0)> averaged
+    over particles and time origins.
+    """
+    vx = vel[:, :, 0]  # x-component
+    n_particles, n_steps = vx.shape
+    if max_lag is None:
+        max_lag = n_steps // 2
+    vx = vx - np.mean(vx, axis=1, keepdims=True)  # subtract mean per trajectory
+
+    Cvv = np.zeros(max_lag)
+    for lag in range(max_lag):
+        # average over particles and time origins
+        prod = vx[:, :-lag or None] * vx[:, lag:]
+        Cvv[lag] = np.mean(prod)
+    t_lags = np.arange(max_lag) * dt
+    return t_lags, Cvv
+
+def mobility_from_vacf(Cvv, t_lags, T, kB=1.0, t_cut=None):
+    """
+    Compute mobility via Green–Kubo integral.
+    """
+    if t_cut is None:
+        t_cut = 0.1 * t_lags[-1]
+    mask = t_lags <= t_cut
+    mu_gk = (1.0 / (kB * T)) * np.trapezoid(Cvv[mask], t_lags[mask])
+    return mu_gk
+
+#import numpy as np
+
+def vacf_from_velocities_fft(vel, dt, max_lag=None, normalize=True):
+    """
+    Fast FFT-based velocity autocorrelation function.
+    Computes Cvv(tau) = <v_x(t0+tau) v_x(t0)> averaged over particles.
+
+    Parameters
+    ----------
+    vel : ndarray (n_particles, n_steps, 2)
+        Velocity trajectories.
+    dt : float
+        Timestep.
+    max_lag : int or None
+        Maximum lag to return (default: half the trajectory).
+    normalize : bool
+        If True, divide by number of contributing points.
+
+    Returns
+    -------
+    t_lags : ndarray
+        Array of lag times.
+    Cvv : ndarray
+        Velocity autocorrelation function averaged over particles.
+    """
+    vx = vel[:, :, 0]               # (n_particles, n_steps)
+    n_particles, n_steps = vx.shape
+    if max_lag is None:
+        max_lag = n_steps // 2
+
+    # subtract mean per trajectory
+    vx = vx - np.mean(vx, axis=1, keepdims=True)
+
+    # --- FFT-based autocorrelation for each particle ---
+    n_fft = 2 * n_steps  # zero-padding to avoid circular convolution
+    Cvv_all = np.zeros((n_particles, n_steps))
+
+    for i in range(n_particles):
+        f = np.fft.fft(vx[i], n=n_fft)
+        acf = np.fft.ifft(f * np.conjugate(f)).real
+        Cvv_all[i] = acf[:n_steps]  # keep only positive lags
+
+    # average over particles
+    Cvv = np.mean(Cvv_all, axis=0)
+
+    if normalize:
+        # divide by number of pairs contributing to each lag
+        norm = np.arange(n_steps, 0, -1)
+        Cvv /= norm
+
+    t_lags = np.arange(n_steps) * dt
+    return t_lags[:max_lag], Cvv[:max_lag]
