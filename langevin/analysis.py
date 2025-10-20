@@ -192,7 +192,7 @@ def compute_chi4_overlap(
     dt=0.01,
     n_lags=100,
     min_lag=1
-):
+    ):
     """
     Computes the dynamical susceptibility χ₄(t) using log-spaced time lags.
 
@@ -235,7 +235,8 @@ def compute_chi4_overlap(
     time_lags = lag_steps * dt
     return time_lags, chi4
 
-    def vacf_from_velocities(vel, dt, max_lag=None):
+    
+def vacf_from_velocities(vel, dt, max_lag=None):
     """
     Compute velocity autocorrelation function <v_x(t0+τ) v_x(t0)> averaged
     over particles and time origins.
@@ -263,8 +264,6 @@ def mobility_from_vacf(Cvv, t_lags, T, kB=1.0, t_cut=None):
     mask = t_lags <= t_cut
     mu_gk = (1.0 / (kB * T)) * np.trapezoid(Cvv[mask], t_lags[mask])
     return mu_gk
-
-#import numpy as np
 
 def vacf_from_velocities_fft(vel, dt, max_lag=None, normalize=True):
     """
